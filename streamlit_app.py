@@ -6,6 +6,19 @@ st.set_page_config(page_title="Misture di urne di Pólya", page_icon="🎲", lay
 
 st.title("🎲 Misture di urne di Pólya")
 st.link_button("Apri la versione online", "https://polyags.streamlit.app")
+with st.container(border=True):
+    st.subheader("Testo dell'esercizio")
+    st.markdown("Imposta la composizione delle urne $U_1$ e $U_2$, la probabilità $P(H)$ di scegliere $U_1$ e il numero $r$ di palline dello stesso colore da aggiungere dopo ogni estrazione. Effettua $3$ estrazioni dall'urna scelta.")
+    st.markdown(r"""
+    **Consegne**
+
+    1. Calcola $P(E_1)$, $P(E_2)$ e $P(E_3)$, dove $E_i$ indica che la i-esima pallina è bianca.
+    2. Verifica se le tre probabilità sono uguali.
+    3. Calcola $P(E_1\wedge E_2)$, $P(E_2\wedge E_3)$ e $P(E_1\wedge E_3)$.
+    4. Scomponi le probabilità usando gli eventi $H$ e $H^c$, quindi determina $P(H\mid E_1)$ e $P(H\mid E_1\wedge E_2)$.
+    5. Considera $X$, il numero di palline bianche estratte, e calcola $P(X=k)$ per $k=0,1,2,3$.
+    6. Confronta i risultati numerici con la formula generale della mistura di urne di Pólya.
+    """)
 st.write(
     "Un'urna viene scelta tra U₁ e U₂ secondo la probabilità P(H). Dopo ogni estrazione, "
     "si effettuano 3 estrazioni e la pallina viene reinserita insieme a r palline dello stesso colore, "
