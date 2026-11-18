@@ -33,6 +33,19 @@ with st.container(border=True):
         step=1,
     )
 
+st.subheader("Rappresentazione delle urne")
+st.caption("⚪ = pallina bianca · ⚫ = pallina nera")
+visual_cols = st.columns(2)
+for column, label, white, black in [
+    (visual_cols[0], "U₁", u1_white, u1_black),
+    (visual_cols[1], "U₂", u2_white, u2_black),
+]:
+    visible_white = "⚪ " * min(white, 20)
+    visible_black = "⚫ " * min(black, 20)
+    extra = (white + black) - min(white, 20) - min(black, 20)
+    column.markdown(f"**{label}**")
+    column.markdown(f"{visible_white}{visible_black}" + (f" + {extra} palline" if extra > 0 else ""))
+
 
 def sequence_probability(white: int, black: int, sequence: tuple[str, ...]) -> float:
     """Probability of a colour sequence in a Pólya urn."""
@@ -331,3 +344,5 @@ with st.expander("6. Formula generale della distribuzione di Pólya", expanded=F
     st.latex(r"P(X=k)=P(H)P(X=k\mid H)+[1-P(H)]P(X=k\mid H^c)")
 
 st.caption("Puoi eseguire l'app con: streamlit run streamlit_app.py")
+st.divider()
+st.caption("Autore: Giuseppe Sanfilippo")
