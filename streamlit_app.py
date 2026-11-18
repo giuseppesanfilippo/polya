@@ -160,6 +160,7 @@ for column, label, value in zip(result_cols, ["P(E₁)", "P(E₂)", "P(E₃)"], 
 st.latex(rf"P(E_1\wedge E_2)={fmt_fraction(p_e1e2)},\qquad P(E_2\wedge E_3)={fmt_fraction(p_e2e3)},\qquad P(E_1\wedge E_3)={fmt_fraction(p_e1e3)}")
 st.latex(rf"P(H\mid E_1)={fmt_fraction(p_h_given_e1)},\qquad P(H\mid E_1\wedge E_2)={fmt_fraction(p_h_given_e1e2)}")
 st.write("Sia (X)  il numero di palline bianche estratte nelle tre estrazioni:")
+st.latex(rf"\text{Sia }X  \text{il numero di palline bianche estratte nelle tre estrazioni:}")
 st.latex(rf"P(X=0)={fmt_fraction(x_distribution[0])},\qquad P(X=1)={fmt_fraction(x_distribution[1])}")
 st.latex(rf"P(X=2)={fmt_fraction(x_distribution[2])},\qquad P(X=3)={fmt_fraction(x_distribution[3])}")
 if (u1_white, u1_black, u2_white, u2_black, p_h) != (2, 1, 1, 2, 0.5):
