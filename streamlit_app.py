@@ -2,18 +2,19 @@ import streamlit as st
 from itertools import product
 from fractions import Fraction
 
-st.set_page_config(page_title="Urne di Pólya", page_icon="🎲", layout="centered")
+st.set_page_config(page_title="Misture di urne di Pólya", page_icon="🎲", layout="centered")
 
-st.title("🎲 Urne di Pólya")
+st.title("🎲 Misture di urne di Pólya")
 st.link_button("Apri la versione online", "https://polyags.streamlit.app")
 st.write(
-    "Un'urna viene scelta tra U₁ e U₂ secondo la probabilità impostata per H. Dopo ogni estrazione, "
-    "la pallina viene reinserita insieme a una pallina dello stesso colore."
+    "Un'urna viene scelta tra U₁ e U₂ secondo la probabilità P(H). Dopo ogni estrazione, "
+    "si effettuano 3 estrazioni e la pallina viene reinserita insieme a r palline dello stesso colore, "
+    "dove r è il valore scelto sotto."
 )
 
 st.header("Imposta l'esercizio")
 with st.container(border=True):
-    st.write("Scegli la composizione delle urne e assegna la probabilità p(H) alla scelta di U₁.")
+    st.write("Scegli la composizione delle urne, la probabilità P(H) e il numero r di palline dello stesso colore da inserire dopo ogni estrazione.")
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("**U₁**")
@@ -23,7 +24,14 @@ with st.container(border=True):
         st.markdown("**U₂**")
         u2_white = st.number_input("Palline bianche in U₂", min_value=0, value=1, step=1, key="u2w")
         u2_black = st.number_input("Palline nere in U₂", min_value=0, value=2, step=1, key="u2b")
-    p_h = st.slider("p(H) = probabilità di scegliere U₁", 0.0, 1.0, 0.5, 0.05)
+    p_h = st.slider("P(H) = probabilità di scegliere U₁", 0.0, 1.0, 0.5, 0.05)
+    reinforcement = st.number_input(
+        "Palline dello stesso colore da aggiungere dopo ogni estrazione",
+        min_value=-1,
+        max_value=10,
+        value=1,
+        step=1,
+    )
 
 
 def sequence_probability(white: int, black: int, sequence: tuple[str, ...]) -> float:
@@ -35,10 +43,10 @@ def sequence_probability(white: int, black: int, sequence: tuple[str, ...]) -> f
             return 0.0
         if colour == "W":
             probability *= white / total
-            white += 1
+            white += reinforcement
         else:
             probability *= black / total
-            black += 1
+            black += reinforcement
     return probability
 
 
@@ -49,9 +57,9 @@ def sequence_factors(white: int, black: int, sequence: tuple[str, ...]) -> list[
         factor = white / total if colour == "W" else black / total
         factors.append(factor)
         if colour == "W":
-            white += 1
+            white += reinforcement
         else:
-            black += 1
+            black += reinforcement
     return factors
 
 
@@ -79,8 +87,24 @@ def mixed_sequence(sequence: tuple[str, ...]) -> float:
     return p_h * sequence_probability(u1_white, u1_black, sequence) + (1 - p_h) * sequence_probability(u2_white, u2_black, sequence)
 
 
+def valid_reinforcement(white: int, black: int) -> bool:
+    for sequence in product(("W", "B"), repeat=3):
+        current_white, current_black = white, black
+        for colour in sequence:
+            if current_white < 0 or current_black < 0 or current_white + current_black <= 0:
+                return False
+            if colour == "W":
+                current_white += reinforcement
+            else:
+                current_black += reinforcement
+    return True
+
+
 if u1_white + u1_black == 0 or u2_white + u2_black == 0:
     st.error("Ogni urna deve contenere almeno una pallina.")
+    st.stop()
+if not valid_reinforcement(u1_white, u1_black) or not valid_reinforcement(u2_white, u2_black):
+    st.error("Con questo valore di rinforzo, una delle urne potrebbe avere un numero non valido di palline. Scegli una composizione compatibile.")
     st.stop()
 
 p_e1 = mixed_event({1})
@@ -194,10 +218,10 @@ u1_total = u1_white + u1_black
 u2_total = u2_white + u2_black
 u1_e1 = u1_white / u1_total
 u2_e1 = u2_white / u2_total
-u1_e2_after_e1 = (u1_white + 1) / (u1_total + 1)
-u2_e2_after_e1 = (u2_white + 1) / (u2_total + 1)
-u1_e2_after_e1c = u1_white / (u1_total + 1)
-u2_e2_after_e1c = u2_white / (u2_total + 1)
+u1_e2_after_e1 = (u1_white + reinforcement) / (u1_total + reinforcement)
+u2_e2_after_e1 = (u2_white + reinforcement) / (u2_total + reinforcement)
+u1_e2_after_e1c = u1_white / (u1_total + reinforcement)
+u2_e2_after_e1c = u2_white / (u2_total + reinforcement)
 u1_e1e2h = p_h * u1_e1 * u1_e2_after_e1
 u2_e1e2hc = (1 - p_h) * u2_e1 * u2_e2_after_e1
 u1_e1c_e2h = p_h * (1 - u1_e1) * u1_e2_after_e1c
@@ -292,5 +316,18 @@ with st.expander("5. Distribuzione di X", expanded=False):
         st.markdown(f"**X = {white_count}**")
         st.latex(fr"P(X={white_count})=" + "+".join(fr"P({event}\wedge {urn})" for event, urn, _ in terms))
         st.latex("+".join(fmt_fraction(probability) for _, _, probability in terms) + fr"={fmt_fraction(total_probability)}")
+
+with st.expander("6. Formula generale della distribuzione di Pólya", expanded=False):
+    st.write("Indichiamo con B il numero iniziale di palline bianche, con N il numero iniziale di palline nere, con n il numero di estrazioni e con r il numero di palline dello stesso colore aggiunte dopo ogni estrazione.")
+    st.latex(r"X=\text{numero di palline bianche estratte in }n\text{ estrazioni}")
+    st.latex(r"(a)_{k,r}=a(a+r)(a+2r)\cdots(a+(k-1)r),\qquad (a)_{0,r}=1")
+    st.latex(r"P(X=k\mid H)=\binom{n}{k}\frac{(B_1)_{k,r}(N_1)_{n-k,r}}{(B_1+N_1)_{n,r}}")
+    st.latex(r"P(X=k\mid H^c)=\binom{n}{k}\frac{(B_2)_{k,r}(N_2)_{n-k,r}}{(B_2+N_2)_{n,r}}")
+    st.latex(r"P(X=k)=P(H)P(X=k\mid H)+[1-P(H)]P(X=k\mid H^c),\qquad k=0,1,\ldots,n")
+    st.write("Nel caso r = 0, la formula si riduce alla mistura di due distribuzioni binomiali:")
+    st.latex(r"P(X=k\mid H)=\binom{n}{k}\left(\frac{B_1}{B_1+N_1}\right)^k\left(\frac{N_1}{B_1+N_1}\right)^{n-k}")
+    st.write("Nel caso r = -1, dopo ogni estrazione si rimuove una pallina dello stesso colore: si ottiene una mistura di distribuzioni ipergeometriche.")
+    st.latex(r"P(X=k\mid H)=\frac{\binom{B_1}{k}\binom{N_1}{n-k}}{\binom{B_1+N_1}{n}},\qquad P(X=k\mid H^c)=\frac{\binom{B_2}{k}\binom{N_2}{n-k}}{\binom{B_2+N_2}{n}}")
+    st.latex(r"P(X=k)=P(H)P(X=k\mid H)+[1-P(H)]P(X=k\mid H^c)")
 
 st.caption("Puoi eseguire l'app con: streamlit run streamlit_app.py")

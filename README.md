@@ -1,4 +1,4 @@
-# Urne di Pólya — app interattiva
+# Misture di urne di Pólya — app interattiva
 
 App didattica per studiare le probabilità associate a due urne di Pólya.
 
@@ -9,7 +9,8 @@ App didattica per studiare le probabilità associate a due urne di Pólya.
 ## Funzionalità
 
 - scelta del numero di palline bianche e nere nelle due urne;
-- scelta della probabilità (p(H)) di selezionare l'urna (U_1);
+- scelta della probabilità P(H) di selezionare l'urna U_1;
+- scelta del numero di palline dello stesso colore da aggiungere dopo ogni estrazione, da -1 a 10;
 - verifica interattiva delle risposte;
 - calcolo di (P(E_1)), (P(E_2)), (P(E_3));
 - calcolo delle probabilità congiunte;
